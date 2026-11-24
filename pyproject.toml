@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "md-analysis-tool"
+version = "0.2.0"
+description = "MD trajectory analysis in one command: RMSD, per-residue RMSF, Rg, PCA free-energy landscape and hydrogen bonds for AMBER/GROMACS trajectories"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "HuangJunbao" }]
+keywords = ["molecular-dynamics", "mdtraj", "md-analysis", "pca", "free-energy-landscape"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dependencies = [
+    "mdtraj>=1.9.7",
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "scikit-learn>=1.3",
+    "matplotlib>=3.7",
+]
+
+[project.scripts]
+md-analyze = "md_analysis_tool:main"
+
+[project.urls]
+Repository = "https://github.com/HuangJunbao784/md-analysis-tool"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+py-modules = ["md_analysis_tool"]

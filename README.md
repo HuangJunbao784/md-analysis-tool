@@ -21,6 +21,13 @@
 pip install -r requirements.txt
 ```
 
+或安装为命令行工具：
+
+```bash
+pip install -e .
+md-analyze --top 1.prmtop --traj md.nc --out results
+```
+
 ## 使用
 
 ```bash
@@ -34,6 +41,8 @@ python src/md_analysis_tool.py --top topol.tpr --traj traj.xtc --out results
 python src/md_analysis_tool.py --top 1.prmtop --traj md.nc \
     --ligand "resname LIG" --temperature 310 --label "GLB-CYP2C9"
 ```
+
+安装为命令后，把 `python src/md_analysis_tool.py` 换成 `md-analyze` 即可。
 
 | 参数 | 默认 | 说明 |
 |---|---|---|
