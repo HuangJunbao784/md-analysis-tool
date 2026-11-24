@@ -15,6 +15,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Compile check
-        run: python -m compileall -q src
+        run: python -m compileall -q src tests
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
       - name: CLI help
         run: python src/md_analysis_tool.py --help

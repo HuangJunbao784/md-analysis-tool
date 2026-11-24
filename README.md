@@ -68,6 +68,14 @@ python src/md_analysis_tool.py --top 1.prmtop --traj md.nc \
 - 氢键用 Wernet–Nilsson 判据，一次遍历整条轨迹；未指定 `--ligand` 时统计蛋白内部氢键。
 - 距离单位沿用 MDTraj 默认值 nm。
 
+## 测试
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+9 个用例覆盖逐残基 RMSF 聚合、PCA 叠合、自由能范围、氢键统计与输入校验；CI 会在每次 push 时跑一遍。
+
 ## English
 
 MD trajectory analysis in one command: backbone RMSD, per-residue RMSF, radius of gyration, PCA-based free-energy landscape and hydrogen-bond statistics for AMBER or GROMACS trajectories. Writes a six-panel figure and a per-frame metrics CSV. Ligand–protein hydrogen bonds are counted when `--ligand` is given. Units are nanometres (MDTraj default).

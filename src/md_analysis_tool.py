@@ -84,6 +84,12 @@ def hbond_counts(traj: md.Trajectory, stride: int, ligand: str | None):
     frame, so the whole trajectory is analysed in a single pass.
     """
     sub = traj[::stride]
+    if sub.topology.n_bonds == 0:
+        raise SystemExit(
+            "Topology has no bonds, so hydrogen bonds cannot be assigned. "
+            "Load a topology that provides bonds (.prmtop/.tpr/.pdb) or call "
+            "topology.create_standard_bonds() first."
+        )
     frames = md.wernet_nilsson(sub, periodic=False)
     if ligand:
         ligand_atoms = set(traj.topology.select(ligand).tolist())
