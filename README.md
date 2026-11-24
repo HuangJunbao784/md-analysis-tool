@@ -1,38 +1,68 @@
-# MD Trajectory Analysis Tool
+# MD Trajectory Analysis Toolkit
 
-自动化分析 AMBER / GROMACS 分子动力学轨迹 | Python + MDTraj
+**AMBER / GROMACS · MDTraj · six-panel summary in one command**
+
+一条命令完成分子动力学轨迹的常规分析：骨架 RMSD、逐残基 RMSF、回转半径、PCA 自由能景观、氢键统计，输出一张六合一图和一张逐帧指标表。支持 AMBER 与 GROMACS 轨迹。
 
 ## 功能
 
-| 分析模块 | 描述 | 等效命令行 |
-|---------|------|-----------|
-| RMSD | 骨架均方根偏差 | `gmx rms` |
-| RMSF | 每个残基的均方根波动 | `gmx rmsf` |
-| Rg | 回转半径 | `gmx gyrate` |
-| PCA | 主成分分析 + 自由能景观 | 手动GRACE画 |
-| H-bond | 蛋白内部 + 配体-蛋白氢键 | `cpptraj hbond` |
-| FEL | 自由能景观图 | 多步手动处理 |
+| 模块 | 内容 |
+|---|---|
+| RMSD | 蛋白骨架相对第一帧的均方根偏差 |
+| RMSF | 逐残基均方根波动（先逐原子计算，再按残基取平均） |
+| Rg | 回转半径 |
+| PCA / FEL | 叠合后取前两个主成分，用核密度估计构造自由能景观 |
+| H-bond | 蛋白内部氢键；指定 `--ligand` 时只统计蛋白–配体之间的氢键 |
+| 指标表 | 导出的 CSV 含 time / RMSD / Rg / PC1 / PC2 |
+
+## 安装
+
+```bash
+pip install -r requirements.txt
+```
 
 ## 使用
 
 ```bash
-cd src
-python md_analysis_tool.py
+# AMBER
+python src/md_analysis_tool.py --top 1.prmtop --traj md.nc --out results
+
+# GROMACS
+python src/md_analysis_tool.py --top topol.tpr --traj traj.xtc --out results
+
+# 带配体，统计蛋白-配体氢键
+python src/md_analysis_tool.py --top 1.prmtop --traj md.nc \
+    --ligand "resname LIG" --temperature 310 --label "GLB-CYP2C9"
 ```
 
-依赖: `mdtraj scikit-learn scipy matplotlib numpy`
-
-## 输入
-
-- AMBER 拓扑文件 (`.prmtop`)
-- AMBER NetCDF 轨迹 (`.nc`) 或 GROMACS (`.xtc` + `.gro`)
+| 参数 | 默认 | 说明 |
+|---|---|---|
+| `--top` | 必填 | 拓扑文件：`.prmtop` / `.tpr` / `.gro` / `.pdb` |
+| `--traj` | 必填 | 轨迹文件：`.nc` / `.xtc` / `.dcd` |
+| `--out` | `../results` | 输出目录 |
+| `--stride` | `50` | 载入时抽帧步长 |
+| `--hb-stride` | `4` | 氢键统计的额外抽帧步长 |
+| `--temperature` | `300` | 自由能换算温度（K） |
+| `--ligand` | 无 | MDTraj 选择语法，如 `resname LIG` |
+| `--label` | 空 | 图标题 |
 
 ## 输出
 
-![analysis](results/md_analysis_summary.png)
+- `results/md_analysis_summary.png`：六合一图（RMSD / RMSF / Rg / FEL / PCA 投影 / 氢键分布）
+- `results/md_analysis_metrics.csv`：逐帧指标（`time_ns, rmsd_nm, rg_nm, pc1, pc2`）
 
-六合一分析图：RMSD | RMSF | Rg | 自由能景观 | PCA时间投影 | 氢键分布
+## 方法说明
 
-## 作者
+- RMSD 与 RMSF 均基于蛋白骨架原子，参考帧为第一帧；RMSF **按残基取平均**，不是逐原子曲线。
+- PCA 之前先对每一帧做最小二乘叠合，去掉整体平移与旋转，避免把全局转动混进主成分。
+- 自由能景观取 `ΔG = −RT ln(P/Pmax)`，默认 300 K，上限裁剪到 25 kJ/mol，便于比较不同体系。
+- 氢键用 Wernet–Nilsson 判据，一次遍历整条轨迹；未指定 `--ligand` 时统计蛋白内部氢键。
+- 距离单位沿用 MDTraj 默认值 nm。
 
-HuangJunbao — 药物化学硕士，计算生物学与AI药物化学方向
+## English
+
+MD trajectory analysis in one command: backbone RMSD, per-residue RMSF, radius of gyration, PCA-based free-energy landscape and hydrogen-bond statistics for AMBER or GROMACS trajectories. Writes a six-panel figure and a per-frame metrics CSV. Ligand–protein hydrogen bonds are counted when `--ligand` is given. Units are nanometres (MDTraj default).
+
+## License
+
+MIT — see [LICENSE](LICENSE).
